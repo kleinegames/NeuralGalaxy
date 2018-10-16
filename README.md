@@ -1,6 +1,6 @@
 The galaxy research project 
 
-We are using machine learning techniques on a dataset provided by the EAGLE simulations to build machine learning models, and learn more about the field of astronomy. 
+We are using machine learning techniques on a dataset provided by the <a href = "http://icc.dur.ac.uk/Eagle/">EAGLE simulations</a> to build machine learning models, and learn more about the field of astronomy. 
 
 Our research goals:
 - identify the shape of a galaxy based on a picture --convulational neural network--
