@@ -6,7 +6,7 @@ We are using machine learning techniques on a dataset provided by the <a href = 
 <b> Why is this project useful?</b><br/>
 In the future the size of astronomical datasets will increase astronomically, pun intended, In order to effectively use our finite resources we will need powerful models to provide us with the most relevant cases to study. That is why we are trying to lay the foundation for these models. 
 
-<b>What are our research goals</b><br/>
+<b>What are our research goals?</b>
 - identify the shape of a galaxy based on a picture.
 - estimate the specific star formation rate of a galaxy using a picture.
 - train a pixel to pixel neural network to generate maps which show the distribution of properties within a galaxy.
