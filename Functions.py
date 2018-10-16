@@ -2,16 +2,8 @@ import matplotlib.pyplot as plt
 import tensorflow as tf
 import numpy as np
 
-'''the neural stuff
-https://github.com/tensorflow/models/blob/f87a58cd96d45de73c9a8330a06b2ab56749a7fa/research/inception/inception/data/build_image_data.py
-https://kwotsin.github.io/tech/2017/01/29/tfrecords.html follow this guide!! make a TFrecord file
-https://medium.com/@ipaar3/how-i-built-a-convolutional-image-classifier-using-tensorflow-from-scratch-f852c34e1c95
-using retrain.py to transfer learn the inception model
-'''
-
-
 def getImageShape(Kr):
-    '''Simple function that takes a Kappa_rotation and returns a label.'''
+    '''Returns a label based on a kappa_rotation value'''
     if(Kr < 0.325):
         return [0,1] #"non-discy galaxy"
     #elif( Kr > 0.325 and Kr < 0.51):
@@ -20,7 +12,7 @@ def getImageShape(Kr):
         return [1,0] #"discy galaxy"
 
 def loadLabelData(path,id): #path = 'I:\data\info\galaxy_data.dat'
-    '''A function wh ich takes a path and identifier and returns something'''
+    '''Returns either a list of Kr values or a dictionary of labels and their identifiers'''
     property_data = np.genfromtxt(path, dtype = (int,int,float,int,float,float,float,float,float), comments = "#", usecols = (0,5))
     KrData = [i[1] for i in property_data.tolist()]
     GalaxyId =  [i[0] for i in property_data.tolist()]
@@ -45,7 +37,7 @@ def orderImageData(dict):
         else:
             os.rename("I:\data\images\gace_on_images\galrand_"+str(x)+".jpg","I:\data\images\gace_on_images\disc\galrand_"+str(x)+".jpg")
 
-def getImageData(array,debug=0): #input = glob.glob("\data\images\gace_on_images\disc\*.jpg")
+def checkImageData(array,debug=0): #input = glob.glob("\data\images\gace_on_images\disc\*.jpg")
     '''a function which loads all images into a numpy array given an array of directory positions'''
     images = np.array([])
     for i in array:
@@ -58,8 +50,15 @@ def getImageData(array,debug=0): #input = glob.glob("\data\images\gace_on_images
                 print(np.min(img_value), np.max(img_value), np.mean(img_value))
     return images
 
+def loadImage(image,image_size):
+    ''''''
+    print("loading image|"+str(image))
+    image = cv2.imread(image)
+    image = cv2.resize(image,(image_size,image_size),3)
+    return image
+
 def splitImageData(dict):
-    '''a function which splits the dataset into a test and training directory '''
+    '''Splits the image dataset into a test and training directory '''
     i = 0
     for x in dict:
         if(i < (len(dict)-2500)):
@@ -72,6 +71,7 @@ def splitImageData(dict):
 
 
 def plotKrHistogram(path,binstep):
+    '''plots a histogram of the Kr distribution'''
     data = loadLabelData(path,0)
     bins = np.arange(0.0,1.0,binstep)
     print("average:"+ str(np.mean(data)))
@@ -83,8 +83,32 @@ def plotKrHistogram(path,binstep):
     plt.ylabel('frequency')
     plt.show()
 
-'''
-#load the label and imagedata
-#reduce imagesize
-#format the data for tensorflow
-'''
+def create_train_data(labelData,image_size):
+    '''loads the image and label datasets into a numpy array'''
+    training_data = []
+    for img in glob.glob(TRAIN_DIR):
+        #label = labelData[img]
+        img = loadImage(img,image_size)
+        training_data.append([np.array(img),np.array([1,0])])
+
+    for img2 in glob.glob(TRAIN_DIR2): #problem file is found which is not there and cannot be created
+        #label2 = labelData[img2]
+        img2 = loadImage(img2,image_size)
+        training_data.append([np.array(img2),np.array([0,1])])
+
+    shuffle(training_data)
+    #np.save('train_data.npy',training_data)
+    return training_data
+
+def process_test_data():
+    '''loads the image and label datasets into a numpy array'''
+    testing_data = []
+    for img in os.listdir(TEST_DIR):
+        i = img.replace(".jpg","")
+        z = i.replace("\data\images\gace_on_images\check\galrand_","")
+        path = os.path.join(TEST_DIR,img)
+        #if(os.path.isdir(path)):
+        img = cv2.imread(str(path))
+        #img = cv2.resize(img,(IMG_SIZE,IMG_SIZE),3)
+        testing_data.append([np.array(img), z])
+    return testing_data
