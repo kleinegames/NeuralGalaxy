@@ -1,6 +1,7 @@
 <h2>The galaxy research project</h2>
 
 
+
  __    __                                         __         ______             __                               
 |  \  |  \                                       |  \       /      \           |  \                              
 | $$\ | $$  ______   __    __   ______   ______  | $$      |  $$$$$$\  ______  | $$  ______   __    __  __    __ 
@@ -13,6 +14,9 @@
                                                                                                        |  \__| $$
                                                                                                         \$$    $$
                                                                                                          \$$$$$$ 
+
+
+
 <b>What are we doing?</b><br/>
 We are using machine learning techniques on a dataset provided by the <a href = "http://icc.dur.ac.uk/Eagle/">EAGLE simulations</a>.
 
