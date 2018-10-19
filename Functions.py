@@ -1,6 +1,10 @@
 import matplotlib.pyplot as plt
 import tensorflow as tf
 import numpy as np
+import os
+import cv2
+import glob
+from random import shuffle
 
 def getImageShape(Kr):
     '''Returns a label based on a kappa_rotation value'''
@@ -26,30 +30,6 @@ def loadLabelData(path,id): #path = 'I:\data\info\galaxy_data.dat'
     elif(id == 1):
         return GaLabs
 
-def orderImageData(dict):
-    '''a function which splits the dataset into directories based on Kappa_rotation value '''
-    for x in dict:
-        if(dict[x] == 0):
-            # take the picture and move into the non-disc folder
-            os.rename('I:\data\images\gace_on_images\galrand_'+str(x)+".jpg",'I:\data\images\gace_on_images\sq-disc\galrand_'+str(x)+".jpg")
-        #elif(dict[x] == 1):
-            #os.rename("I:\data\images\gace_on_images\galrand_"+str(x)+".jpg","I:\data\images\gace_on_images\partial-disc\galrand_"+str(x)+".jpg")
-        else:
-            os.rename("I:\data\images\gace_on_images\galrand_"+str(x)+".jpg","I:\data\images\gace_on_images\disc\galrand_"+str(x)+".jpg")
-
-def checkImageData(array,debug=0): #input = glob.glob("\data\images\gace_on_images\disc\*.jpg")
-    '''a function which loads all images into a numpy array given an array of directory positions'''
-    images = np.array([])
-    for i in array:
-        image_string = tf.read_file(str(i))
-        image = tf.image.decode_image(image_string)
-        np.append(images,image)
-        if(debug == 1):
-            with tf.Session() as session:
-                img_value = session.run(image)
-                print(np.min(img_value), np.max(img_value), np.mean(img_value))
-    return images
-
 def loadImage(image,image_size):
     ''''''
     print("loading image|"+str(image))
@@ -57,15 +37,24 @@ def loadImage(image,image_size):
     image = cv2.resize(image,(image_size,image_size),3)
     return image
 
-def splitImageData(dict):
+def create_directories(path):
+    Traindir = path+r'\training'
+    Testdir = path+r'\testing'
+    if not os.path.exists(Traindir):
+        os.makedirs(Traindir)
+    if not os.path.exists(Testdir):
+        os.makedirs(Testdir)
+
+
+def splitImageData(dict,image_dir,train_dir,test_dir):
     '''Splits the image dataset into a test and training directory '''
     i = 0
     for x in dict:
         if(i < (len(dict)-2500)):
-            os.rename('I:\data\images\gace_on_images\galrand_'+str(x)+".jpg",'I:\data\images\gace_on_images\practice\galrand_'+str(x)+".jpg")
-            print("image added to training")
+            os.rename(image_dir+'galrand_'+str(x)+".jpg",train_dir+'galrand_'+str(x)+".jpg")
+            print("Image added to training set")
         else:
-            os.rename('I:\data\images\gace_on_images\galrand_'+str(x)+".jpg",'I:\data\images\gace_on_images\check\galrand_'+str(x)+".jpg")
+            os.rename(image_dir+'galrand_'+str(x)+".jpg",test_dir+'galrand_'+str(x)+".jpg")
             print("image added to testing")
         i = i+1
 
@@ -83,24 +72,18 @@ def plotKrHistogram(path,binstep):
     plt.ylabel('frequency')
     plt.show()
 
-def create_train_data(labelData,image_size):
+def create_train_data(labelData,image_size,train_dir):
     '''loads the image and label datasets into a numpy array'''
     training_data = []
-    for img in glob.glob(TRAIN_DIR):
+    for img in glob.glob(train_dir):
         #label = labelData[img]
         img = loadImage(img,image_size)
         training_data.append([np.array(img),np.array([1,0])])
-
-    for img2 in glob.glob(TRAIN_DIR2): #problem file is found which is not there and cannot be created
-        #label2 = labelData[img2]
-        img2 = loadImage(img2,image_size)
-        training_data.append([np.array(img2),np.array([0,1])])
-
     shuffle(training_data)
     #np.save('train_data.npy',training_data)
     return training_data
 
-def process_test_data():
+def process_test_data(test_dir):
     '''loads the image and label datasets into a numpy array'''
     testing_data = []
     for img in os.listdir(TEST_DIR):
