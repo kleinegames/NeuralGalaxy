@@ -24,7 +24,7 @@ def loadLabelData(path,id): #path = 'I:\data\info\galaxy_data.dat'
     GaLabs = {}
     for x in range(0,len(GalaxyId)):
         #GaLabs["galrand_"+str(GalaxyId[x])+".jpg"] = LabelData[x]
-        GaLabs["galrand_"+str(GalaxyId[x])+".jpg"] = LabelData[x]
+        GaLabs["\galrand_"+str(GalaxyId[x])+".jpg"] = LabelData[x]
     if(id == 0):
         return KrData
     elif(id == 1):
@@ -76,9 +76,10 @@ def create_train_data(labelData,image_size,train_dir):
     '''loads the image and label datasets into a numpy array'''
     training_data = []
     for img in glob.glob(train_dir):
-        #label = labelData[img]
+        lb = img.replace(train_dir.replace("\*.jpg",""),"")
+        label = labelData[lb]
         img = loadImage(img,image_size)
-        training_data.append([np.array(img),np.array([1,0])])
+        training_data.append([np.array(img),np.array(label)])
     shuffle(training_data)
     #np.save('train_data.npy',training_data)
     return training_data
