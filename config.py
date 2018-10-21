@@ -1,6 +1,6 @@
 from Model import *
 
-IMAGE_DIR = r'' #wacth the backslash
+IMAGE_DIR = r'' 
 LABEL_DIR = r''
 TRAIN_DIR = r''
 TEST_DIR = r''
@@ -12,11 +12,11 @@ def Initialize():
     create_directories(IMAGE_DIR)
     splitImageData(loadLabelData(LABEL_DIR,1),IMAGE_DIR,TRAIN_DIR,TEST_DIR)
 
-def runModel():
+def RunModel():
     '''creates a new object of the model and runs it'''
     model = KrModel(TRAIN_DIR, TEST_DIR, LABEL_DIR,NAME,LEARNING_RATE)
     model.run()
 
-# comment out this function if it is done
 
-runModel()
+#Initialize()
+#RunModel()

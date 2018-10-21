@@ -5,6 +5,7 @@ import os
 import cv2
 import glob
 from random import shuffle
+from tqdm import tqdm
 
 def getImageShape(Kr):
     '''Returns a label based on a kappa_rotation value'''
@@ -31,8 +32,7 @@ def loadLabelData(path,id): #path = 'I:\data\info\galaxy_data.dat'
         return GaLabs
 
 def loadImage(image,image_size):
-    ''''''
-    print("loading image|"+str(image))
+    '''loads and resizes the image'''
     image = cv2.imread(image)
     image = cv2.resize(image,(image_size,image_size),3)
     return image
@@ -75,7 +75,8 @@ def plotKrHistogram(path,binstep):
 def create_train_data(labelData,image_size,train_dir):
     '''loads the image and label datasets into a numpy array'''
     training_data = []
-    for img in glob.glob(train_dir):
+    print("loading image data for training:")
+    for img in tqdm(glob.glob(train_dir)):
         lb = img.replace(train_dir.replace("\*.jpg",""),"")
         label = labelData[lb]
         img = loadImage(img,image_size)
@@ -84,15 +85,12 @@ def create_train_data(labelData,image_size,train_dir):
     #np.save('train_data.npy',training_data)
     return training_data
 
-def process_test_data(test_dir):
+def process_test_data(test_dir,image_size):
     '''loads the image and label datasets into a numpy array'''
     testing_data = []
-    for img in os.listdir(TEST_DIR):
-        i = img.replace(".jpg","")
-        z = i.replace("\data\images\gace_on_images\check\galrand_","")
-        path = os.path.join(TEST_DIR,img)
-        #if(os.path.isdir(path)):
-        img = cv2.imread(str(path))
-        #img = cv2.resize(img,(IMG_SIZE,IMG_SIZE),3)
+    print("loading image data for testing:")
+    for img in tqdm(glob.glob(test_dir)):
+        z = img.replace(test_dir.replace("\*.jpg",""),"")
+        img = loadImage(img,image_size)
         testing_data.append([np.array(img), z])
     return testing_data
