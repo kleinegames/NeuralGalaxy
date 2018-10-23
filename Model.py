@@ -18,14 +18,19 @@ class KrModel:
         TRAIN_DIR = self.train_dir+r'\*.jpg'
         TEST_DIR = self.test_dir+r'\*.jpg'
         LABEL_DIR = self.label_dir
-        IMG_SIZE = 24
+        IMG_SIZE = 248
         LR = self.lr
         MODEL_NAME = self.name #"classifier-{}-{}.model".format(LR,'2conv-basic')
 
         data = loadLabelData(LABEL_DIR,1)
         train_data = create_train_data(data,IMG_SIZE,TRAIN_DIR)
-        #train_data = np.load('train_data.npy')
-
+        testIndices = np.random.choice(len(train_data),500,replace = False)
+        test = []
+        index = []
+        for x in range(0,500):
+            index.append(testIndices[x])
+            test.append(train_data[testIndices[x]])
+        train = [train_data[i] for i in range(0,len(train_data)) if i not in index]
 
         convnet = input_data(shape=[None, IMG_SIZE, IMG_SIZE, 3], name='input')
 
@@ -42,9 +47,6 @@ class KrModel:
         convnet = regression(convnet, optimizer='adam', learning_rate=LR, loss='categorical_crossentropy', name='targets')
 
         model = tflearn.DNN(convnet,tensorboard_dir='log')
-
-        train = train_data[:-500]
-        test = train_data[-500:]
 
         X = np.array([i[0] for i in train]).reshape(-1,IMG_SIZE,IMG_SIZE,3)
         Y = [i[1] for i in train]

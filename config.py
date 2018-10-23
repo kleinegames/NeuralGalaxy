@@ -1,9 +1,9 @@
 from Model import *
 
-IMAGE_DIR = r'' 
-LABEL_DIR = r''
-TRAIN_DIR = r''
-TEST_DIR = r''
+IMAGE_DIR = r'I:\data\images\gace_on_images'
+LABEL_DIR = r'I:\data\info\galaxy_data.dat'
+TRAIN_DIR = r'I:\data\images\gace_on_images\training'
+TEST_DIR = r'I:\data\images\gace_on_images\testing'
 LEARNING_RATE = 1e-3
 NAME = "classifier-{}-{}.model".format(LEARNING_RATE,'2conv-basic')
 
@@ -19,4 +19,4 @@ def RunModel():
 
 
 #Initialize()
-#RunModel()
+RunModel()

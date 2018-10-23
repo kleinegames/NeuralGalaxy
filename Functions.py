@@ -48,15 +48,21 @@ def create_directories(path):
 
 def splitImageData(dict,image_dir,train_dir,test_dir):
     '''Splits the image dataset into a test and training directory '''
-    i = 0
-    for x in dict:
-        if(i < (len(dict)-2500)):
-            os.rename(image_dir+'galrand_'+str(x)+".jpg",train_dir+'galrand_'+str(x)+".jpg")
-            print("Image added to training set")
-        else:
-            os.rename(image_dir+'galrand_'+str(x)+".jpg",test_dir+'galrand_'+str(x)+".jpg")
-            print("image added to testing")
-        i = i+1
+    train,test = splitTestingTraining(list(dict.keys()),2500)
+    print("filling training directory")
+    for y in tqdm(range(0,len(train))):
+        x = train[y]
+        os.rename(image_dir+str(x),train_dir+str(x))
+    print("filling testing directory")
+    for y in tqdm(range(0,len(test))):
+        x = test[y]
+        os.rename(image_dir+str(x),test_dir+str(x))
+
+
+def splitTestingTraining(array,size):
+    test = np.random.choice(array,size,replace= False)
+    train = set(array)-set(test)
+    return list(train),test
 
 
 def plotKrHistogram(path,binstep):
@@ -72,20 +78,24 @@ def plotKrHistogram(path,binstep):
     plt.ylabel('frequency')
     plt.show()
 
-def create_train_data(labelData,image_size,train_dir):
+def create_train_data(labelData,image_size,train_dir, save = False):
     '''loads the image and label datasets into a numpy array'''
     training_data = []
-    print("loading image data for training:")
-    for img in tqdm(glob.glob(train_dir)):
-        lb = img.replace(train_dir.replace("\*.jpg",""),"")
-        label = labelData[lb]
-        img = loadImage(img,image_size)
-        training_data.append([np.array(img),np.array(label)])
-    shuffle(training_data)
-    #np.save('train_data.npy',training_data)
+    if(os.path.exists('train_data.npy')):
+        training_data = np.load('train_data.npy')
+    else:
+        print("loading image data for training:")
+        for img in tqdm(glob.glob(train_dir)):
+            lb = img.replace(train_dir.replace("\*.jpg",""),"")
+            label = labelData[lb]
+            img = loadImage(img,image_size)
+            training_data.append([np.array(img),np.array(label)])
+            shuffle(training_data)
+        if(save == True):
+            np.save('train_data.npy',training_data)
     return training_data
 
-def process_test_data(test_dir,image_size):
+def process_test_data(test_dir,image_size, save = False):
     '''loads the image and label datasets into a numpy array'''
     testing_data = []
     print("loading image data for testing:")
@@ -93,4 +103,6 @@ def process_test_data(test_dir,image_size):
         z = img.replace(test_dir.replace("\*.jpg",""),"")
         img = loadImage(img,image_size)
         testing_data.append([np.array(img), z])
+    if(save == True):
+        np.save('testing_data.npy',testing_data)
     return testing_data
