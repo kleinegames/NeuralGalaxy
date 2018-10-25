@@ -1,4 +1,6 @@
 logs/
 ExtraFunctions.py
-__pycache__/ 
+*.pyc
 *.npy 
+*.LAPTOP
+*.log

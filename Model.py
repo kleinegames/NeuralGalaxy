@@ -8,7 +8,7 @@ from tflearn.layers.estimator import regression
 tf.logging.set_verbosity(tf.logging.ERROR) #suppress the keepdims warning
 
 class KrModel:
-    
+
     def __init__(self,train_dir,test_dir,label_dir,name,lr):
         self.train_dir = train_dir
         self.test_dir = test_dir+r'\*.jpg'
@@ -73,7 +73,7 @@ class KrModel:
         test_x = np.array([i[0] for i in test]).reshape(-1,IMG_SIZE,IMG_SIZE,3)
         test_y = [i[1] for i in test]
 
-        model.fit({'input': X}, {'targets': Y}, n_epoch=12, validation_set=({'input': test_x}, {'targets': test_y}),
+        model.fit({'input': X}, {'targets': Y}, n_epoch=8, validation_set=({'input': test_x}, {'targets': test_y}),
         snapshot_step=1000, show_metric=True, run_id=MODEL_NAME)
         return model
 
@@ -84,6 +84,6 @@ class KrModel:
         for i in runs: #train the model several times to account for randomness
             print("run number:"+str(i+1))
             model =  self.run() #trains the model
-            score = predict_test_accuracy(model,self.test_dir,self.img_size) #tests the model
+            score = predict_test_accuracy(model,self.test_dir,self.img_size,Labels) #tests the model
             print("the test accuracies computed over " + str(i+1) + "runs are"+str(score))
             print("the average test accuracy: "+str(sum(score)/len(score)))

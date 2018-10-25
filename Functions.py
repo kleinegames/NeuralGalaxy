@@ -110,10 +110,11 @@ def create_test_data(test_dir,image_size, save = False): #not working !
     return testing_data
 
 
-def predict_test_accuracy(model,test_dir,img_size):
+def predict_test_accuracy(model,test_dir,img_size,Labels):
     '''trains and tests the model several times and returns a list of size runs containing test accuracies'''
     test_data = create_test_data(test_dir,img_size,False)
     good = 0
+    score = []
     for num, data in enumerate(test_data):
         img_data = data[0]
         num = data[1]
