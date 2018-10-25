@@ -1,0 +1,4 @@
+logs/
+ExtraFunctions.py
+__pycache__/ 
+*.npy 
