@@ -15,7 +15,9 @@ def Initialize():
 def RunModel():
     '''creates a new object of the model and runs it'''
     model = KrModel(TRAIN_DIR, TEST_DIR, LABEL_DIR,NAME,LEARNING_RATE)
-    model.run()
+    # model.run()
+    model.checkModel(1)
+
 
 
 #Initialize()

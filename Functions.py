@@ -45,7 +45,6 @@ def create_directories(path):
     if not os.path.exists(Testdir):
         os.makedirs(Testdir)
 
-
 def splitImageData(dict,image_dir,train_dir,test_dir):
     '''Splits the image dataset into a test and training directory '''
     train,test = splitTestingTraining(list(dict.keys()),2500)
@@ -58,8 +57,8 @@ def splitImageData(dict,image_dir,train_dir,test_dir):
         x = test[y]
         os.rename(image_dir+str(x),test_dir+str(x))
 
-
 def splitTestingTraining(array,size):
+    '''randomly splits the elements of an array into a testing and training set'''
     test = np.random.choice(array,size,replace= False)
     train = set(array)-set(test)
     return list(train),test
@@ -95,14 +94,37 @@ def create_train_data(labelData,image_size,train_dir, save = False):
             np.save('train_data.npy',training_data)
     return training_data
 
-def process_test_data(test_dir,image_size, save = False):
-    '''loads the image and label datasets into a numpy array'''
+def create_test_data(test_dir,image_size, save = False): #not working !
+    '''loads the testing image and label datasets into a numpy array'''
     testing_data = []
-    print("loading image data for testing:")
-    for img in tqdm(glob.glob(test_dir)):
-        z = img.replace(test_dir.replace("\*.jpg",""),"")
-        img = loadImage(img,image_size)
-        testing_data.append([np.array(img), z])
-    if(save == True):
-        np.save('testing_data.npy',testing_data)
+    if(os.path.exists('test_data.npy')):
+        training_data = np.load('test_data.npy')
+    else:
+        print("loading image data for testing:")
+        for img in tqdm(glob.glob(test_dir)):
+            z = img.replace(test_dir.replace("\*.jpg",""),"")
+            img = loadImage(img,image_size)
+            testing_data.append([np.array(img), z])
+        if(save == True):
+            np.save('test_data.npy',testing_data)
     return testing_data
+
+
+def predict_test_accuracy(model,test_dir,img_size):
+    '''trains and tests the model several times and returns a list of size runs containing test accuracies'''
+    test_data = create_test_data(test_dir,img_size,False)
+    good = 0
+    for num, data in enumerate(test_data):
+        img_data = data[0]
+        num = data[1]
+        label = Labels[num]
+        data = img_data.reshape(img_size,img_size,3)
+        model_out = model.predict([data])[0]
+        if(np.argmax(model_out) == 1):
+            if(label[0] < label[1]):
+                good = good+1
+        else:
+            if(label[0] > label[1]):
+                good = good+1
+    score.append(good/len(test_data))
+    return score
