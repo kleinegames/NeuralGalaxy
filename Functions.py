@@ -7,6 +7,16 @@ import glob
 from random import shuffle
 from tqdm import tqdm
 
+slash = r''
+
+def initFunctions(os):
+    if(os == 'win'):
+        slash = r'\\'
+    elif(os == 'lin'):
+        slash = r'/'
+
+
+
 def getImageShape(Kr):
     '''Returns a label based on a kappa_rotation value'''
     if(Kr < 0.325):
@@ -25,7 +35,7 @@ def loadLabelData(path,id): #path = 'I:\data\info\galaxy_data.dat'
     GaLabs = {}
     for x in range(0,len(GalaxyId)):
         #GaLabs["galrand_"+str(GalaxyId[x])+".jpg"] = LabelData[x]
-        GaLabs["\galrand_"+str(GalaxyId[x])+".jpg"] = LabelData[x]
+        GaLabs[slash+"galrand_"+str(GalaxyId[x])+".jpg"] = LabelData[x]
     if(id == 0):
         return KrData
     elif(id == 1):
@@ -38,8 +48,8 @@ def loadImage(image,image_size):
     return image
 
 def create_directories(path):
-    Traindir = path+r'\training'
-    Testdir = path+r'\testing'
+    Traindir = path+slash+r'training'
+    Testdir = path+slash+r'testing'
     if not os.path.exists(Traindir):
         os.makedirs(Traindir)
     if not os.path.exists(Testdir):
@@ -85,7 +95,7 @@ def create_train_data(labelData,image_size,train_dir, save = False):
     else:
         print("loading image data for training:")
         for img in tqdm(glob.glob(train_dir)):
-            lb = img.replace(train_dir.replace("\*.jpg",""),"")
+            lb = img.replace(train_dir.replace(slash+"*.jpg",""),"")
             label = labelData[lb]
             img = loadImage(img,image_size)
             training_data.append([np.array(img),np.array(label)])
@@ -102,7 +112,7 @@ def create_test_data(test_dir,image_size, save = False): #not working !
     else:
         print("loading image data for testing:")
         for img in tqdm(glob.glob(test_dir)):
-            z = img.replace(test_dir.replace("\*.jpg",""),"")
+            z = img.replace(test_dir.replace(slash+"*.jpg",""),"")
             img = loadImage(img,image_size)
             testing_data.append([np.array(img), z])
         if(save == True):

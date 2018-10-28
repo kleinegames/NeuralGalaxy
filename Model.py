@@ -4,18 +4,27 @@ from tflearn.layers.conv import conv_2d, max_pool_2d
 from tflearn.layers.core import input_data, dropout, fully_connected
 from tflearn.layers.estimator import regression
 
+
+
  #reset the model
 tf.logging.set_verbosity(tf.logging.ERROR) #suppress the keepdims warning
 
 class KrModel:
 
-    def __init__(self,train_dir,test_dir,label_dir,name,lr):
+    def __init__(self,train_dir,test_dir,label_dir,name,lr,os):
+        self.os = os
+        if(self.os == 'lin'):
+            self.slash = r'/'
+        elif(self.os == 'win'):
+            self.slash = r'\\'
         self.train_dir = train_dir
-        self.test_dir = test_dir+r'\*.jpg'
+        self.test_dir = test_dir+self.slash+r'*.jpg'
         self.label_dir = label_dir
         self.name = name
         self.lr = lr
         self.img_size = 62
+        initFunctions(self.os)
+
 
     def createModel(self):
         tf.reset_default_graph()
@@ -50,8 +59,8 @@ class KrModel:
         return model
 
     def run(self):
-        TRAIN_DIR = self.train_dir+r'\*.jpg'
-        TEST_DIR = self.test_dir+r'\*.jpg'
+        TRAIN_DIR = self.train_dir+self.slash+r'*.jpg'
+        TEST_DIR = self.test_dir+self.slash+r'*.jpg'
         LABEL_DIR = self.label_dir
         LR = self.lr
         MODEL_NAME = self.name
