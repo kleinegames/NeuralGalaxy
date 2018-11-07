@@ -1,5 +1,6 @@
 "# NeuralGalaxy" 
-using python and tensorflow on big astronmical datasets. The code is one big mess so please wait until the next update
+Using python & tensorflow to infer properties of simulated galaxies provided by the eagle simulations 
+a detailed description will follow soon the fancy ASCII logo has been added in! 
 
 
---Fancy logo coming soon 
+
