@@ -1,23 +1,14 @@
+from random import shuffle
+from tqdm import tqdm
 import matplotlib.pyplot as plt
-import tensorflow as tf
 import numpy as np
 import os
 import cv2
 import glob
-from random import shuffle
-from tqdm import tqdm
-
-slash = r''
-
-def initFunctions(os):
-    if(os == 'win'):
-        slash = r'\\'
-    elif(os == 'lin'):
-        slash = r'/'
+slash = os.sep
 
 
-
-def getImageShape(Kr):
+def get_galaxy_shape(Kr):
     '''Returns a label based on a kappa_rotation value'''
     if(Kr < 0.325):
         return [0,1] #"non-discy galaxy"
@@ -26,12 +17,12 @@ def getImageShape(Kr):
     else:
         return [1,0] #"discy galaxy"
 
-def loadLabelData(path,id): #path = 'I:\data\info\galaxy_data.dat'
+def load_labels(path,id): #path = 'I:\data\info\galaxy_data.dat'
     '''Returns either a list of Kr values or a dictionary of labels and their identifiers'''
     property_data = np.genfromtxt(path, dtype = (int,int,float,int,float,float,float,float,float), comments = "#", usecols = (0,5))
     KrData = [i[1] for i in property_data.tolist()]
     GalaxyId =  [i[0] for i in property_data.tolist()]
-    LabelData = [getImageShape(x) for x in KrData]
+    LabelData = [get_galaxy_shape(x) for x in KrData]
     GaLabs = {}
     for x in range(0,len(GalaxyId)):
         #GaLabs["galrand_"+str(GalaxyId[x])+".jpg"] = LabelData[x]
@@ -41,7 +32,7 @@ def loadLabelData(path,id): #path = 'I:\data\info\galaxy_data.dat'
     elif(id == 1):
         return GaLabs
 
-def loadImage(image,image_size):
+def load_image(image,image_size):
     '''loads and resizes the image'''
     image = cv2.imread(image)
     image = cv2.resize(image,(image_size,image_size),3)
@@ -55,9 +46,9 @@ def create_directories(path):
     if not os.path.exists(Testdir):
         os.makedirs(Testdir)
 
-def splitImageData(dict,image_dir,train_dir,test_dir):
+def train_test_split(dict,image_dir,train_dir,test_dir):
     '''Splits the image dataset into a test and training directory '''
-    train,test = splitTestingTraining(list(dict.keys()),2500)
+    train,test = random_train_test_arrays(list(dict.keys()),2500)
     print("filling training directory")
     for y in tqdm(range(0,len(train))):
         x = train[y]
@@ -67,16 +58,16 @@ def splitImageData(dict,image_dir,train_dir,test_dir):
         x = test[y]
         os.rename(image_dir+str(x),test_dir+str(x))
 
-def splitTestingTraining(array,size):
+def random_train_test_arrays(array,size):
     '''randomly splits the elements of an array into a testing and training set'''
     test = np.random.choice(array,size,replace= False)
     train = set(array)-set(test)
     return list(train),test
 
 
-def plotKrHistogram(path,binstep):
+def plot_kr_histogram(path,binstep):
     '''plots a histogram of the Kr distribution'''
-    data = loadLabelData(path,0)
+    data = load_labels(path,0)
     bins = np.arange(0.0,1.0,binstep)
     print("average:"+ str(np.mean(data)))
     print("variance:"+str((np.std(data))**2))
@@ -97,7 +88,7 @@ def create_train_data(labelData,image_size,train_dir, save = False):
         for img in tqdm(glob.glob(train_dir)):
             lb = img.replace(train_dir.replace(slash+"*.jpg",""),"")
             label = labelData[lb]
-            img = loadImage(img,image_size)
+            img = load_image(img,image_size)
             training_data.append([np.array(img),np.array(label)])
             shuffle(training_data)
         if(save == True):
@@ -108,12 +99,12 @@ def create_test_data(test_dir,image_size, save = False): #not working !
     '''loads the testing image and label datasets into a numpy array'''
     testing_data = []
     if(os.path.exists('test_data.npy')):
-        training_data = np.load('test_data.npy')
+        testing_data = np.load('test_data.npy')
     else:
         print("loading image data for testing:")
         for img in tqdm(glob.glob(test_dir)):
             z = img.replace(test_dir.replace(slash+"*.jpg",""),"")
-            img = loadImage(img,image_size)
+            img = load_image(img,image_size)
             testing_data.append([np.array(img), z])
         if(save == True):
             np.save('test_data.npy',testing_data)
@@ -122,7 +113,7 @@ def create_test_data(test_dir,image_size, save = False): #not working !
 
 def predict_test_accuracy(model,test_dir,img_size,Labels):
     '''trains and tests the model several times and returns a list of size runs containing test accuracies'''
-    test_data = create_test_data(test_dir,img_size,False)
+    test_data = create_test_data(test_dir,img_size,True)
     good = 0
     score = []
     for num, data in enumerate(test_data):

@@ -1,33 +1,27 @@
-from Functions import *
+from utils import *
 import tflearn
 from tflearn.layers.conv import conv_2d, max_pool_2d
 from tflearn.layers.core import input_data, dropout, fully_connected
 from tflearn.layers.estimator import regression
+import tensorflow as tf
 
-
-
- #reset the model
 tf.logging.set_verbosity(tf.logging.ERROR) #suppress the keepdims warning
 
 class KrModel:
 
-    def __init__(self,train_dir,test_dir,label_dir,name,lr,os):
-        self.os = os
-        if(self.os == 'lin'):
-            self.slash = r'/'
-        elif(self.os == 'win'):
-            self.slash = r'\\'
+    def __init__(self,train_dir,test_dir,label_dir,name,lr):
+        self.slash = os.sep
         self.train_dir = train_dir
         self.test_dir = test_dir+self.slash+r'*.jpg'
         self.label_dir = label_dir
         self.name = name
         self.lr = lr
         self.img_size = 62
-        initFunctions(self.os)
 
 
-    def createModel(self):
-        tf.reset_default_graph()
+
+    def create_model(self):
+        tf.reset_default_graph() #reset the tensorflow graph
         convnet = input_data(shape=[None, self.img_size, self.img_size, 3], name='input')
 
         convnet = conv_2d(convnet, 32, 4, activation='relu')
@@ -58,16 +52,16 @@ class KrModel:
         model = tflearn.DNN(convnet,tensorboard_dir='log')
         return model
 
-    def run(self):
+    def train(self):
         TRAIN_DIR = self.train_dir+self.slash+r'*.jpg'
-        TEST_DIR = self.test_dir+self.slash+r'*.jpg'
+        TEST_DIR = self.test_dir
         LABEL_DIR = self.label_dir
         LR = self.lr
         MODEL_NAME = self.name
         IMG_SIZE = self.img_size
-        model = self.createModel()
+        model = self.create_model()
 
-        data = loadLabelData(LABEL_DIR,1)
+        data = load_labels(LABEL_DIR,1)
         train_data = create_train_data(data,IMG_SIZE,TRAIN_DIR,True)
         testIndices = np.random.choice(len(train_data),500,replace = False)
         test = []
@@ -82,17 +76,18 @@ class KrModel:
         test_x = np.array([i[0] for i in test]).reshape(-1,IMG_SIZE,IMG_SIZE,3)
         test_y = [i[1] for i in test]
 
-        model.fit({'input': X}, {'targets': Y}, n_epoch=8, validation_set=({'input': test_x}, {'targets': test_y}),
-        snapshot_step=1000, show_metric=True, run_id=MODEL_NAME)
+        model.fit({'input': X}, {'targets': Y}, n_epoch=1, validation_set=({'input': test_x}, {'targets': test_y}),
+        snapshot_epoch= True, show_metric = True, run_id=MODEL_NAME)          # callbacks = predict_test_accuracy(model,self.test_dir,self.img_size,load_labels(self.label_dir,1))
+        #model.save(self.name)
         return model
 
-    def checkModel(self,runs):
+    def train_model(self,runs):
         score = []
         runs = [i for i in range(0,runs)]
-        Labels = loadLabelData(self.label_dir,1)
+        Labels = load_labels(self.label_dir,1)
         for i in runs: #train the model several times to account for randomness
-            print("run number:"+str(i+1))
-            model =  self.run() #trains the model
+            print("number of training sessions: "+str(i+1))
+            model =  self.train() #trains the model
             score = predict_test_accuracy(model,self.test_dir,self.img_size,Labels) #tests the model
-            print("the test accuracies computed over " + str(i+1) + "runs are"+str(score))
+            print("the test accuracies computed over " + str(i+1) + " runs are"+str(score))
             print("the average test accuracy: "+str(sum(score)/len(score)))
